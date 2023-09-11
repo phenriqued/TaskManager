@@ -1,29 +1,39 @@
 package phenrique.com.github.Model.Entity.Task;
 
+import phenrique.com.github.Exceptions.TaskException;
 import phenrique.com.github.Model.Util.IdGenerator.IDGeneretor;
 import phenrique.com.github.Model.Entity.Enum.Status.StatusTask;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 
-public class Task {
+
+public class TaskEntity implements Comparable<TaskEntity> {
+
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
     private Long id = IDGeneretor.generateValueId();
     private String description;
-    private Date creationDate;
+    private LocalDate creationDate;
     private Date endDate;
     private StatusTask status;
 
-    public Task() {
+    public TaskEntity() {
     }
-    public Task(String description, Date endDate) {
+    public TaskEntity(String description, Date endDate) {
         this.description = description;
         this.endDate = endDate;
+        this.creationDate = LocalDate.now();
+        this.status = StatusTask.IN_PROGRESS;
     }
-    public Task(String description, Date creationDate, Date endDate, StatusTask status) {
-        this.description = description;
-        this.creationDate = creationDate;
-        this.endDate = endDate;
-        this.status = status;
+
+    public static Date parseFormat(String date){
+        try {
+            return simpleDateFormat.parse(date);
+        }catch (Exception e){
+            throw new TaskException(e.getMessage());
+        }
     }
 
     public Long getId() {
@@ -35,7 +45,7 @@ public class Task {
     public void setDescription(String description) {
         this.description = description;
     }
-    public Date getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
     public Date getEndDate() {
@@ -52,13 +62,21 @@ public class Task {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Task task)) return false;
+    public int compareTo(TaskEntity otherTask) {
+        if(this.endDate.before(otherTask.endDate)) return 1;
 
-        return id.equals(task.id);
+        if (this.endDate.after(otherTask.endDate)) return -1;
+
+        return 0;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TaskEntity taskEntity)) return false;
+
+        return id.equals(taskEntity.id);
+    }
     @Override
     public int hashCode() {
         return id.hashCode();

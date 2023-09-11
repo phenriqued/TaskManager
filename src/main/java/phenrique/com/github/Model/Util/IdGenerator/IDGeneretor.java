@@ -7,7 +7,7 @@ package phenrique.com.github.Model.Util.IdGenerator;
 //
 public class IDGeneretor {
 
-    private static Long ID = 1L;
+    private static Long ID = 0L;
 
     public static Long generateValueId(){
         return ID++;
