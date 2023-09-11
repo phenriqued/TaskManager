@@ -84,10 +84,9 @@ public class TaskEntity implements Comparable<TaskEntity> {
 
     @Override
     public String toString() {
-        return "Task{" +
-                "description='" + description + '\'' +
-                ", endDate=" + endDate +
-                ", status=" + status +
-                '}';
+        return "\nTarefa " + getId() +":\n"+
+                "Description: [" + description + "]\n" +
+                "Data Limite: " + endDate +
+                "  -  Status: " + status;
     }
 }
