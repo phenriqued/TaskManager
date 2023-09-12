@@ -4,7 +4,7 @@ import phenrique.com.github.Model.Entity.Task.TaskEntity;
 import phenrique.com.github.Services.TaskService.TaskService;
 import phenrique.com.github.View.InterfaceUI.UITaskInterface;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public class TaskController implements UITaskInterface {
@@ -16,7 +16,7 @@ public class TaskController implements UITaskInterface {
     }
     @Override
     public void createTask(String description, String date) {
-        Date dueDate = TaskEntity.parseFormat(date);
+        LocalDate dueDate = TaskEntity.parseFormat(date);
         TaskEntity myTask = new TaskEntity(description, dueDate);
         taskService.createTask(myTask);
     }

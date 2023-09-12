@@ -1,38 +1,50 @@
 package phenrique.com.github.Model.Entity.Task;
 
 import phenrique.com.github.Exceptions.TaskException;
-import phenrique.com.github.Model.Util.IdGenerator.IDGeneretor;
 import phenrique.com.github.Model.Entity.Enum.Status.StatusTask;
+import phenrique.com.github.Model.Util.IdGenerator.IDGeneretor;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.Objects;
 
 
 public class TaskEntity implements Comparable<TaskEntity> {
-
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private Long id = IDGeneretor.generateValueId();
     private String description;
-    private LocalDate creationDate;
-    private Date endDate;
+    private LocalDate creationDate = LocalDate.now();
+    private LocalDate endDate;
     private StatusTask status;
 
     public TaskEntity() {
     }
-    public TaskEntity(String description, Date endDate) {
+    public TaskEntity(String description, LocalDate endDate) {
+        Objects.requireNonNull(description, "The description cannot be null!");
+        if(description.isEmpty()) throw new TaskException("The description cannot be empty!");
+        validationEndDate(endDate);
         this.description = description;
         this.endDate = endDate;
-        this.creationDate = LocalDate.now();
         this.status = StatusTask.IN_PROGRESS;
     }
 
-    public static Date parseFormat(String date){
+    public static LocalDate parseFormat(String date){
         try {
-            return simpleDateFormat.parse(date);
+            return LocalDate.parse(date, dateTimeFormatter);
         }catch (Exception e){
             throw new TaskException(e.getMessage());
+        }
+    }
+
+    public static String formatStyle(LocalDate date){
+        return dateTimeFormatter.format(date);
+    }
+
+    private void validationEndDate(LocalDate dueDate) {
+        if(dueDate.isBefore(creationDate)){
+            throw new TaskException("The date must be the same or later: " + formatStyle(creationDate));
         }
     }
 
@@ -48,10 +60,10 @@ public class TaskEntity implements Comparable<TaskEntity> {
     public LocalDate getCreationDate() {
         return creationDate;
     }
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
-    public void setEndDate(Date endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
     public StatusTask getStatus() {
@@ -61,11 +73,13 @@ public class TaskEntity implements Comparable<TaskEntity> {
         this.status = status;
     }
 
+
+
     @Override
     public int compareTo(TaskEntity otherTask) {
-        if(this.endDate.before(otherTask.endDate)) return 1;
+        if(this.endDate.isBefore(otherTask.endDate)) return 1;
 
-        if (this.endDate.after(otherTask.endDate)) return -1;
+        if (this.endDate.isAfter(otherTask.endDate)) return -1;
 
         return 0;
     }
@@ -86,7 +100,7 @@ public class TaskEntity implements Comparable<TaskEntity> {
     public String toString() {
         return "\nTarefa " + getId() +":\n"+
                 "Description: [" + description + "]\n" +
-                "Data Limite: " + endDate +
+                "Data Limite: " + formatStyle(endDate) +
                 "  -  Status: " + status;
     }
 }

@@ -11,7 +11,6 @@ public class TaskService implements TaskRepository {
 
     @Override
     public void createTask(TaskEntity task) {
-        if(task == null) throw new TaskException("Task cannot be NULL");
         ListTaskService.addTask(task);
     }
 

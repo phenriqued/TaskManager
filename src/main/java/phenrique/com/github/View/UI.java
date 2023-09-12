@@ -39,7 +39,6 @@ public class UI {
             }catch (Exception e){
                 System.out.println("\n"+e.getMessage());
                 System.out.println("Pressione \"Enter\" para continuar!\n");
-                input.nextLine();
             }
         }
 
