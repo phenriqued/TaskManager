@@ -1,22 +1,28 @@
 package phenrique.com.github.Model.Entity.Task;
 
+
+import javax.persistence.*;
 import phenrique.com.github.Exceptions.TaskException;
 import phenrique.com.github.Model.Entity.Enum.Status.StatusTask;
-import phenrique.com.github.Model.Util.IdGenerator.IDGeneretor;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.Objects;
 
-
+@Entity
+@Table(name = "tb_tasks")
 public class TaskEntity implements Comparable<TaskEntity> {
     private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    private Long id = IDGeneretor.generateValueId();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(columnDefinition = "TEXT")
     private String description;
-    private LocalDate creationDate = LocalDate.now();
+    private LocalDate creationDate;
     private LocalDate endDate;
+
+    @Enumerated(EnumType.STRING)
     private StatusTask status;
 
     public TaskEntity() {
@@ -24,8 +30,9 @@ public class TaskEntity implements Comparable<TaskEntity> {
     public TaskEntity(String description, LocalDate endDate) {
         Objects.requireNonNull(description, "The description cannot be null!");
         if(description.isEmpty()) throw new TaskException("The description cannot be empty!");
-        validationEndDate(endDate);
+        this.creationDate = LocalDate.now();
         this.description = description;
+        validationEndDate(endDate);
         this.endDate = endDate;
         this.status = StatusTask.IN_PROGRESS;
     }

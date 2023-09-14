@@ -9,7 +9,7 @@ public interface UITaskInterface {
     void createTask(String description, String date);
     List<TaskEntity> findAll();
     TaskEntity findById(Long Id);
-    void updateTask(Long id, TaskEntity task);
+    TaskEntity updateTask(Long id, TaskEntity update);
     void deleteTask(Long id);
 
 }

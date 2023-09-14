@@ -41,7 +41,6 @@ public class UI {
                 System.out.println("Pressione \"Enter\" para continuar!\n");
             }
         }
-
     }
 
     private Integer screen(){
@@ -72,7 +71,9 @@ public class UI {
         System.out.println(taskInterface.findAll());
     }
     private void updateTaskUI() {
-        System.out.print("Qual Tarefa deseja alterar: ");
+        System.out.print("Qual Tarefa deseja alterar: \nTarefas:\n");
+        listAllTaskUI();
+        System.out.print("Digite o ID da Tarefa que deseja excluir: ");
         Long id = input.nextLong();
         input.nextLine();
         System.out.println("Descreva sua Tarefa Atualizada : ");
@@ -85,15 +86,12 @@ public class UI {
         System.out.println("Tarefa Atualizada!!!");
     }
     private void deleteTaskUI() {
-        System.out.print("Qual Tarefa deseja excluir: ");
+        System.out.print("Qual Tarefa deseja excluir: \nTarefas:\n");
+        listAllTaskUI();
+        System.out.print("Digite o ID da Tarefa que deseja excluir: ");
         Long id = input.nextLong();
         taskInterface.deleteTask(id);
         System.out.println("Tarefa Exluida!!!");
     }
-
-
-
-
-
 
 }

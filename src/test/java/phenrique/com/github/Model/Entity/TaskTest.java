@@ -1,33 +1,55 @@
 package phenrique.com.github.Model.Entity;
 
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import phenrique.com.github.Controller.TaskController;
 import phenrique.com.github.Exceptions.TaskException;
 import phenrique.com.github.Model.Entity.Task.TaskEntity;
-import phenrique.com.github.Services.TaskService.ListTaskService;
+import phenrique.com.github.Model.Util.ConnectionUtil.ConnectionUtil;
+import phenrique.com.github.Services.TaskService.TaskService;
 
-import java.time.LocalDate;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TaskTest {
 
     private static TaskController taskController;
+    private static EntityManager entityManager;
+    private static EntityTransaction transaction;
 
     @BeforeAll
-    static void initializer(){
-        taskController = new TaskController();
+    static void setup(){
+        ConnectionUtil connectionUtil = new ConnectionUtil();
+        entityManager = connectionUtil.recoverEntityManager();
+        taskController = new TaskController(new TaskService());
+        transaction = entityManager.getTransaction();
+        transaction.begin();
+    }
+
+    @AfterAll
+    static void teardown(){
+        if (transaction.isActive()) {
+            transaction.rollback();
+        }
+        entityManager.close();
     }
 
     @Test
     @DisplayName("User must be able to create a new task")
     void createNewUserTasks(){
-        taskController.createTask("description", "12/09/2025");
-        assertEquals(1, ListTaskService.getAllTask().size());
+        taskController.createTask("descriptionCreate", "12/12/2025");
+
+        List<TaskEntity> tasks = entityManager.createQuery("SELECT tasks FROM TaskEntity tasks", TaskEntity.class)
+                .getResultList();
+
+        assertFalse(tasks.isEmpty());
+        tasks.forEach(System.out::println);
     }
 
     @Test
@@ -44,29 +66,30 @@ public class TaskTest {
     @Test
     @DisplayName("User must be able to update a exist task")
     void updateTask(){
-        createTaskForUpdateAndDeleteTest();
-        TaskEntity newTask = new TaskEntity("changing this description", LocalDate.now());
-        taskController.updateTask(0l, newTask);
-        assertEquals("changing this description", ListTaskService.getByIdTask(0l).getDescription());
+        List<TaskEntity> tasks = entityManager.createQuery("SELECT tasks FROM TaskEntity tasks", TaskEntity.class)
+                .getResultList();
+        TaskEntity newTask = new TaskEntity("change this description", TaskEntity.parseFormat("12/12/2025"));
+        taskController.updateTask(tasks.get(0).getId(),newTask);
 
-    }
-    private void createTaskForUpdateAndDeleteTest(){
-        taskController.createTask("description", "12/09/2025");
+
+        assertEquals(taskController.findById(tasks.get(0).getId()).getDescription(), "change this description");
     }
 
     @Test
     @DisplayName("User must be able to delete a exist task")
     void deleteTask(){
-        createTaskForUpdateAndDeleteTest();
-        assertEquals(taskController.findAll().size(), 3);
-        taskController.deleteTask(1l);
-        assertEquals(taskController.findAll().size(), 2);
+        List<TaskEntity> tasks = entityManager.createQuery("SELECT tasks FROM TaskEntity tasks", TaskEntity.class)
+                .getResultList();
+        assertEquals(tasks.size(), taskController.findAll().size());
+
+        taskController.deleteTask(tasks.get(1).getId());
+        assertEquals(tasks.size()-1, taskController.findAll().size());
     }
 
     @Test
     @DisplayName("User can be able to list all his tasks")
     void listAllTask(){
-        assertEquals(taskController.findAll(), ListTaskService.getAllTask());
+        assertEquals(taskController.findAll(), entityManager.createQuery("SELECT t FROM TaskEntity t", TaskEntity.class).getResultList());
     }
 
 
